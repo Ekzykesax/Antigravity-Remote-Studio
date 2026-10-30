@@ -11,7 +11,7 @@ Antigravity Remote Studio 是专为 **Google Antigravity 官方桌面客户端�
 - **模型额度监控**：直观展示 Gemini、Claude 等模型当前窗口的剩余可用额度与重置时间。  
   > ⚠️ **说明**：当前移动端仅提供额度查看功能，**暂不支持在手机端切换模型或调整思考强度**（模型与思考强度请在电脑端 Antigravity 桌面端界面中配置）。
 - **历史会话管理**：支持查看本地历史对话列表，点击即可切换到对应会话继续查看。
-- **图片画廊与大图预览**：聚合展示本地生成的图片资产（如 ComfyUI 生图成果），提供全屏图片预览灯箱，支持双击缩放、手势平移缩放与长按保存。
+- **图片画廊与大图预览**：聚合展示本地生成的图片资产，深度适配配套生图技能库 [comfy2antigravity](https://github.com/Ekzykesax/comfy2antigravity) 的成果归档体系（支持 `ComfyUI生图成果/` 目录下成品图、过程图与参考图的分类浏览），提供全屏图片预览灯箱，支持双击缩放、手势平移缩放与长按直接保存。
 - **自适应网络与安全验证**：
   - **局域网访问**：同一 Wi-Fi 或本机（`localhost` / `192.168.x.x`）访问直接免密通行；
   - **外网穿透访问**：通过云服务器 SSH/FRP 隧道或 Pinggy 访问时，自动启用密码验证与设备指纹绑定，保障公网访问安全。
@@ -137,6 +137,16 @@ docker run -d --name antigravity_frps --restart always --network host \
 ```
 
 详细说明可参见 [`server_deploy/README.md`](server_deploy/README.md)。
+
+---
+
+## 配套生图 Skill 推荐
+
+如果你在 Antigravity 中进行本地 AI 图像生成或编辑，推荐搭配使用作者的另一个开源 Skill 项目：  
+👉 **[comfy2antigravity (Universal ComfyUI Skill for AI Coding Agents)](https://github.com/Ekzykesax/comfy2antigravity)**
+
+- **无缝归档互通**：该 Skill 封装了本地 ComfyUI 的免调参文生图、高保真图像编辑、二次元实景融合及 4K 焦外保真超分等功能，所有生成资产均自动分级存储至 `ComfyUI生图成果/`；
+- **移动端闭环交互**：电脑端生成的图片会实时同步至本项目的手机画廊中，手机端全屏灯箱支持高清放大与长按保存，实现「手机下达生图/修图指令 ➔ 电脑端后台静默渲染 ➔ 手机端即时预览与收图」的流畅闭环。
 
 ---
 
