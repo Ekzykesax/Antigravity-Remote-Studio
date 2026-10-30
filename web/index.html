@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Antigravity Remote Studio</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#121212">
+  
+  <!-- Google Fonts: Newsreader (Claude-style editorial serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Newsreader', 'Georgia', 'Cambria', 'serif'],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif']
+          },
+          colors: {
+            paper: {
+              50: '#FDFDFC',
+              100: '#F7F7F5',
+              200: '#EBEBEA',
+              300: '#DCDCDA',
+              800: '#262624',
+              900: '#181816',
+              950: '#121211'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Marked & Highlight.js -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css?v=4.3">
+  <style>
+    :root {
+      --ios-top-safe: 68px;
+    }
+    @media (min-width: 768px) {
+      :root {
+        --ios-top-safe: 0px;
+      }
+    }
+    .pt-safe {
+      padding-top: var(--ios-top-safe, 68px) !important;
+      padding-top: max(var(--ios-top-safe, 68px), env(safe-area-inset-top, 68px)) !important;
+    }
+    .pb-safe {
+      padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    }
+  </style>
+</head>
+<body class="bg-[#F7F7F5] dark:bg-[#121211] text-[#1c1917] dark:text-[#E6E6E5] flex flex-col h-screen overflow-hidden select-none font-sans antialiased transition-colors duration-200">
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none max-w-[90vw]"></div>
+
+  <!-- ========================================================================= -->
+  <!-- Top Navigation Header (Claude Minimalist Aesthetic) -->
+  <!-- ========================================================================= -->
+  <header style="padding-top: max(68px, env(safe-area-inset-top, 68px)) !important;" class="border-b border-[#E5E5E3] dark:border-[#262624] bg-[#F7F7F5]/90 dark:bg-[#121211]/90 backdrop-blur-md z-30 shrink-0">
+    <div class="h-14 px-3.5 flex items-center justify-between w-full">
+      <!-- Left: History Drawer Button & Quick Reload -->
+      <div class="flex items-center gap-1.5">
+        <button id="btn-toggle-drawer" class="p-2 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] active:scale-95 transition text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white" title="历史记录">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+        </button>
+        <button id="btn-quick-reload" onclick="window.location.href=window.location.pathname+'?key='+(new URLSearchParams(window.location.search).get('key')||'antigravity')+'&_v='+Date.now()" class="p-2 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] active:scale-95 transition text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white" title="强制刷新">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Center: Session Title & Connection Status -->
+      <div class="flex-1 mx-3 min-w-0 text-center cursor-pointer" id="header-title-container">
+        <div class="flex items-center justify-center gap-1.5">
+          <span id="conn-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h1 id="chat-title" class="text-sm font-serif font-semibold tracking-tight truncate max-w-[170px] sm:max-w-[320px]">加载会话中...</h1>
+        </div>
+        <p id="chat-subtitle" class="text-[10px] text-[#78716C] dark:text-[#78716C] tracking-wide truncate">Antigravity Native Studio</p>
+      </div>
+
+      <!-- Right: Theme Toggle, Model Pill, Gallery Button -->
+      <div class="flex items-center gap-1.5">
+        <!-- Dark / Light Mode Toggle -->
+        <button id="btn-theme-toggle" class="p-2 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] active:scale-95 transition text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white" title="切换暗黑/浅色模式">
+          <!-- Sun icon (for dark mode) -->
+          <svg id="icon-theme-sun" class="w-4 h-4 hidden dark:block text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <!-- Moon icon (for light mode) -->
+          <svg id="icon-theme-moon" class="w-4 h-4 block dark:hidden text-[#57534E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+
+        <!-- Quota Pill -->
+        <button id="btn-open-model-modal" class="px-2.5 py-1 text-xs rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] text-[#1c1917] dark:text-[#E6E6E5] flex items-center gap-1 active:scale-95 transition font-medium" title="查看账号额度">
+          <span class="text-xs">🕒</span>
+          <span id="header-model-label" class="truncate max-w-[85px]">额度 --%</span>
+        </button>
+
+        <!-- Gallery Button -->
+        <button id="btn-open-gallery" class="p-2 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] active:scale-95 transition text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white" title="生图相册">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- Main Chat Timeline -->
+  <!-- ========================================================================= -->
+  <main id="chat-stream" class="flex-1 overflow-y-auto px-4 py-6 space-y-5 overscroll-contain select-text max-w-3xl mx-auto w-full">
+    <div id="loading-placeholder" class="text-center py-20 text-[#78716C] text-sm">
+      <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-[#1C1917] dark:border-[#E6E6E5] border-t-transparent mb-3"></div>
+      <p class="font-serif">正在读取会话流...</p>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- Bottom Input Bar -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-[#E5E5E3] dark:border-[#262624] bg-[#F7F7F5]/95 dark:bg-[#121211]/95 backdrop-blur-md p-3 pb-safe z-20 shrink-0">
+    <div class="max-w-3xl mx-auto w-full">
+      <!-- Attachment Preview Bar -->
+      <div id="attachment-preview-bar" class="hidden flex gap-2 overflow-x-auto no-scrollbar mb-2 py-1 items-center">
+        <!-- Dynamic Attachment Chips rendered via JS -->
+      </div>
+
+      <!-- Attachment Menu Popover -->
+      <div id="attachment-menu" class="hidden absolute bottom-16 left-4 z-30 bg-white dark:bg-[#1C1C1A] border border-[#DCDCDA] dark:border-[#2E2E2B] rounded-2xl shadow-xl p-1.5 flex flex-col gap-1 min-w-[200px]">
+        <button id="btn-pick-photos" type="button" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#1C1917] dark:text-[#E6E6E5] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition text-left w-full">
+          <span class="text-base">🖼️</span>
+          <div>
+            <div class="font-semibold">照片图库 / 截图</div>
+            <div class="text-[10px] text-[#78716C]">支持相册批量多选</div>
+          </div>
+        </button>
+        <button id="btn-pick-files" type="button" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#1C1917] dark:text-[#E6E6E5] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition text-left w-full">
+          <span class="text-base">📁</span>
+          <div>
+            <div class="font-semibold">文件 / 文档</div>
+            <div class="text-[10px] text-[#78716C]">代码、PDF、压缩包等</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Input Form -->
+      <form id="chat-form" class="flex items-end gap-2 relative">
+        <!-- Hidden Native File Inputs -->
+        <!-- 1. Pure image input: triggers native iOS/Android multi-select album -->
+        <input type="file" id="attachment-photo-input" multiple accept="image/*" class="hidden">
+        <!-- 2. Universal document input -->
+        <input type="file" id="attachment-file-input" multiple accept="*/*" class="hidden">
+
+        <!-- Native Trigger for Attachment Menu -->
+        <button type="button" id="btn-attach" class="h-10 w-10 rounded-2xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white active:scale-95 flex items-center justify-center transition shrink-0 shadow-sm cursor-pointer select-none relative" title="添加附件/图片">
+          <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+          </svg>
+          <span id="attachment-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold rounded-full flex items-center justify-center leading-none">0</span>
+        </button>
+
+        <div class="flex-1 bg-white dark:bg-[#1C1C1A] border border-[#DCDCDA] dark:border-[#2E2E2B] focus-within:border-black dark:focus-within:border-white rounded-2xl px-3.5 py-2.5 transition flex items-center shadow-sm">
+          <textarea id="prompt-input" rows="1" placeholder="发送指令给反重力..." class="w-full bg-transparent text-sm text-[#1C1917] dark:text-[#E6E6E5] placeholder-[#A8A29E] dark:placeholder-[#57534E] outline-none resize-none max-h-32 leading-relaxed"></textarea>
+        </div>
+        <button type="submit" id="btn-send" class="h-10 w-10 rounded-2xl bg-[#1C1917] dark:bg-white text-white dark:text-[#1C1917] hover:opacity-90 active:scale-95 flex items-center justify-center transition shrink-0 shadow-sm">
+          <svg class="w-4 h-4 translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </form>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- Drawer: Conversation History -->
+  <!-- ========================================================================= -->
+  <div id="history-drawer-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden transition-opacity opacity-0"></div>
+  <aside id="history-drawer" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white dark:bg-[#181816] border-r border-[#E5E5E3] dark:border-[#262624] z-50 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col shadow-2xl">
+    <!-- Drawer Header -->
+    <div class="pt-safe border-b border-[#E5E5E3] dark:border-[#262624]">
+      <div class="h-14 px-4 flex items-center justify-between">
+        <h2 class="text-sm font-serif font-bold text-[#1C1917] dark:text-white flex items-center gap-2">
+          <span>🕘</span> 历史会话记录
+        </h2>
+        <button id="btn-new-chat" class="px-2.5 py-1 text-xs rounded-lg bg-[#1C1917] dark:bg-white text-white dark:text-[#1C1917] font-medium active:scale-95 transition flex items-center gap-1 shadow-sm">
+          <span>+</span> 新会话
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="p-3 border-b border-[#E5E5E3] dark:border-[#262624]">
+      <div class="flex items-center bg-[#F7F7F5] dark:bg-[#121211] rounded-xl px-2.5 py-1.5 border border-[#DCDCDA] dark:border-[#2E2E2B]">
+        <svg class="w-3.5 h-3.5 text-[#A8A29E] mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="history-search-input" type="text" placeholder="搜索历史会话..." class="bg-transparent text-xs text-[#1C1917] dark:text-[#E6E6E5] outline-none w-full placeholder-[#A8A29E]">
+      </div>
+    </div>
+
+    <!-- Conversation List -->
+    <div id="history-list" class="flex-1 overflow-y-auto p-2 space-y-1 overscroll-contain">
+      <!-- Cards rendered via JS -->
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- Modal: Model & Quota Dashboard -->
+  <!-- ========================================================================= -->
+  <div id="model-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="modal-content relative bg-white dark:bg-[#181816] border border-[#E5E5E3] dark:border-[#262624] rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden shadow-2xl z-10 animate-slide-up">
+      <!-- Header -->
+      <div class="p-4 border-b border-[#E5E5E3] dark:border-[#262624] flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-serif font-bold text-[#1C1917] dark:text-white flex items-center gap-1.5">
+            <span>🕒</span> 账号额度与用量监控
+          </h3>
+          <p class="text-[11px] text-[#78716C]">实时对齐官方插件 · 5h 滚动与周额度 · 活跃上下文统计</p>
+        </div>
+        <button id="btn-close-model-modal" class="p-1.5 rounded-xl text-[#78716C] hover:text-black dark:hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        
+        <!-- Section 1: Context Window Card (上下文窗口) -->
+        <div class="p-3.5 rounded-2xl bg-white dark:bg-[#1C1C1A] border border-[#E5E5E3] dark:border-[#262624] shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#1C1917] dark:text-[#E6E6E5]">上下文窗口</span>
+            <span id="ctx-used-summary" class="text-xs font-medium text-sky-600 dark:text-sky-400 font-mono">--% 已用 (剩余 --%)</span>
+          </div>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="ctx-tokens" class="text-[11px] text-[#78716C] font-mono">-- K / 256K tok</span>
+          </div>
+          <!-- Track & Fill -->
+          <div class="w-full bg-[#E5E5E3] dark:bg-[#2A2A28] h-1.5 rounded-full overflow-hidden my-2.5">
+            <div id="ctx-fill" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-[#F0F0EE] dark:border-[#262624] text-[11px]">
+            <span class="text-[#78716C]">采样模型</span>
+            <span id="ctx-sampled-model" class="font-medium text-[#1C1917] dark:text-[#E6E6E5]">Gemini 3.8 Flash</span>
+          </div>
+        </div>
+
+        <!-- Section 2: Quota Group Selector & Cards (额度组) -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#78716C] uppercase tracking-wider">额度组</span>
+            <div class="flex items-center gap-1.5">
+              <!-- Quota Group Selector Tabs -->
+              <div id="quota-group-tabs" class="flex p-0.5 rounded-xl bg-[#E5E5E3] dark:bg-[#262624] text-[11px]">
+                <button type="button" class="quota-group-tab active px-2.5 py-1 rounded-lg font-semibold bg-white dark:bg-[#1C1C1A] text-black dark:text-white shadow-xs transition" data-group="gemini">Gemini</button>
+                <button type="button" class="quota-group-tab px-2.5 py-1 rounded-lg font-medium text-[#78716C] hover:text-black dark:hover:text-white transition" data-group="claude">Claude / GPT</button>
+              </div>
+              <!-- Refresh Button -->
+              <button id="btn-refresh-quota" type="button" class="p-1.5 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] text-[#78716C] hover:text-black dark:hover:text-white active:scale-90 transition" title="刷新额度">
+                <svg id="icon-refresh-quota" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quota Cards Container: 5h and Weekly Cards -->
+          <div id="quota-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- 5h Card -->
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-[#1C1C1A] border border-[#E5E5E3] dark:border-[#262624] shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-[#1C1917] dark:text-[#E6E6E5] flex items-center gap-1.5">
+                    <span>🕒</span> 5h 额度
+                  </span>
+                  <div class="flex items-baseline gap-1">
+                    <strong id="five-balance" class="text-sm font-bold text-sky-600 dark:text-sky-400 font-mono">--%</strong>
+                    <span class="text-[10px] text-[#78716C]">剩余</span>
+                  </div>
+                </div>
+                <div class="w-full bg-[#E5E5E3] dark:bg-[#2A2A28] h-1.5 rounded-full overflow-hidden my-2.5">
+                  <div id="five-fill" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
+                <div class="space-y-1.5 text-[11px]">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[#78716C]">重置倒计时</span>
+                    <span id="five-countdown" class="font-mono font-semibold text-sky-600 dark:text-sky-400">--:--:--</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[#78716C]">重置时间 (北京时间)</span>
+                    <span id="five-reset" class="font-mono text-[#57534E] dark:text-[#A8A29E]">--/-- --:--</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[10px] text-[#A8A29E] dark:text-[#57534E] mt-2 pt-1 border-t border-[#F0F0EE] dark:border-[#262624]">同组模型共享额度。</p>
+            </div>
+
+            <!-- Weekly Card -->
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-[#1C1C1A] border border-[#E5E5E3] dark:border-[#262624] shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-[#1C1917] dark:text-[#E6E6E5] flex items-center gap-1.5">
+                    <span>📅</span> 周额度
+                  </span>
+                  <div class="flex items-baseline gap-1">
+                    <strong id="week-balance" class="text-sm font-bold text-sky-600 dark:text-sky-400 font-mono">--%</strong>
+                    <span class="text-[10px] text-[#78716C]">剩余</span>
+                  </div>
+                </div>
+                <div class="w-full bg-[#E5E5E3] dark:bg-[#2A2A28] h-1.5 rounded-full overflow-hidden my-2.5">
+                  <div id="week-fill" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                </div>
+                <div class="space-y-1.5 text-[11px]">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[#78716C]">重置倒计时</span>
+                    <span id="week-countdown" class="font-mono font-semibold text-sky-600 dark:text-sky-400">--天 --:--:--</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[#78716C]">重置时间 (北京时间)</span>
+                    <span id="week-reset" class="font-mono text-[#57534E] dark:text-[#A8A29E]">--/-- --:--</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[10px] text-[#A8A29E] dark:text-[#57534E] mt-2 pt-1 border-t border-[#F0F0EE] dark:border-[#262624]">同组模型共享额度。</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Modal: ComfyUI Photo Gallery (Clean, Minimalist, Full-screen) -->
+  <!-- ========================================================================= -->
+  <div id="gallery-modal" class="fixed inset-0 z-50 hidden flex flex-col bg-[#F7F7F5] dark:bg-[#121211]">
+    <!-- Header -->
+    <header class="border-b border-[#E5E5E3] dark:border-[#262624] bg-[#F7F7F5]/95 dark:bg-[#121211]/95 shrink-0 pt-safe">
+      <div class="h-14 px-4 flex items-center justify-between w-full">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🖼️</span>
+          <div>
+            <h3 class="text-sm font-serif font-bold text-[#1C1917] dark:text-white">生图资产画廊 (ComfyUI)</h3>
+            <p id="gallery-count" class="text-[10px] text-[#78716C]">正在扫描工作区...</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-gallery-toggle-all" type="button" class="px-2.5 py-1 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] text-[11px] font-medium text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white active:scale-95 transition" title="一键展开/收起全部">
+            展开全部
+          </button>
+          <button id="btn-close-gallery" class="p-2 rounded-xl border border-[#DCDCDA] dark:border-[#2E2E2B] bg-white dark:bg-[#1C1C1A] text-[#57534E] dark:text-[#A8A29E] hover:text-black dark:hover:text-white active:scale-95 transition" title="关闭画廊">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Category & NSFW Dual-Tier Filter Bar -->
+    <div class="border-b border-[#E5E5E3] dark:border-[#262624] bg-white/80 dark:bg-[#181816]/80 backdrop-blur-md px-3.5 py-2 flex flex-col gap-1.5 shrink-0">
+      <!-- Tier 1: Stage Filter (成品图 / 过程草稿 / 参考图) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
+        <span class="text-[11px] font-semibold text-[#78716C] dark:text-[#A8A29E] shrink-0 mr-1">阶段:</span>
+        <button class="gallery-filter-chip active" data-filter-type="stage" data-filter-val="all">全部 (<span id="count-stage-all">0</span>)</button>
+        <button class="gallery-filter-chip" data-filter-type="stage" data-filter-val="finished">⭐ 成品专库 (<span id="count-stage-finished">0</span>)</button>
+        <button class="gallery-filter-chip" data-filter-type="stage" data-filter-val="draft">🎨 过程草稿 (<span id="count-stage-draft">0</span>)</button>
+        <button class="gallery-filter-chip" data-filter-type="stage" data-filter-val="reference">📌 垫图参考 (<span id="count-stage-reference">0</span>)</button>
+      </div>
+
+      <!-- Tier 2: NSFW Rating Filter (全年龄 / NSFW) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
+        <span class="text-[11px] font-semibold text-[#78716C] dark:text-[#A8A29E] shrink-0 mr-1">分级:</span>
+        <button class="gallery-filter-chip active" data-filter-type="rating" data-filter-val="all">全部 (<span id="count-rating-all">0</span>)</button>
+        <button class="gallery-filter-chip" data-filter-type="rating" data-filter-val="safe">🍃 全年龄 (<span id="count-rating-safe">0</span>)</button>
+        <button class="gallery-filter-chip" data-filter-type="rating" data-filter-val="nsfw">🔞 NSFW (<span id="count-rating-nsfw">0</span>)</button>
+      </div>
+    </div>
+
+    <!-- Gallery Body: Grouped by Category & NSFW -->
+    <div id="gallery-container" class="flex-1 overflow-y-auto p-3.5 space-y-5 overscroll-contain select-none">
+      <!-- Dynamic Date Sections & Grids rendered via JS -->
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Immersive Full-Screen Lightbox (Edge-to-Edge with Floating Auto-Hide HUD) -->
+  <!-- ========================================================================= -->
+  <div id="lightbox-modal" class="fixed inset-0 hidden bg-black z-[9999] select-none touch-none overflow-hidden" style="z-index: 9999 !important; background-color: #000000 !important;">
+    <!-- Full-Screen Interactive Viewport -->
+    <div id="lightbox-viewport" class="absolute inset-0 w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing bg-black">
+      <img id="lightbox-img" src="" alt="Preview" class="w-full h-full object-contain will-change-transform select-none" draggable="false">
+    </div>
+
+    <!-- Floating Top Bar (Auto-hide in immersive mode) -->
+    <div id="lightbox-top-bar" class="absolute top-0 inset-x-0 h-14 flex items-center justify-between px-4 pt-safe pointer-events-none z-50 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300">
+      <div class="pointer-events-auto flex items-center gap-2 min-w-0 bg-black/40 border border-white/10 backdrop-blur-md px-3 py-1 rounded-full">
+        <span id="lightbox-name" class="text-xs text-neutral-200 font-mono truncate max-w-[220px]"></span>
+        <span id="lightbox-zoom-badge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-white/15 text-neutral-300 font-mono font-medium">100%</span>
+      </div>
+      <button id="btn-close-lightbox" class="pointer-events-auto w-9 h-9 rounded-full bg-black/50 border border-white/20 hover:bg-black/75 active:scale-90 text-white transition flex items-center justify-center backdrop-blur-md shadow-lg" title="关闭预览">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Floating Bottom Controls HUD (Auto-hide in immersive mode) -->
+    <div id="lightbox-bottom-bar" class="absolute bottom-0 inset-x-0 flex flex-col items-center gap-1.5 pb-safe px-4 pointer-events-none z-50 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-6 transition-opacity duration-300">
+      <div id="lightbox-controls-dock" class="pointer-events-auto flex items-center gap-1.5 bg-black/70 border border-white/15 backdrop-blur-xl px-3.5 py-1.5 rounded-full shadow-2xl text-xs text-neutral-200">
+        <button id="btn-zoom-out" class="p-1 hover:text-white active:scale-90 text-sm font-bold" title="缩小">🔍−</button>
+        <button id="btn-zoom-reset" class="px-2 py-0.5 text-[11px] font-mono hover:text-white active:scale-95 text-neutral-300" title="重置 100%">100%</button>
+        <button id="btn-zoom-in" class="p-1 hover:text-white active:scale-90 text-sm font-bold" title="放大">🔍＋</button>
+        <span class="w-[1px] h-3.5 bg-white/20 mx-0.5"></span>
+        <button id="btn-zoom-fit" class="px-2 py-0.5 text-[11px] hover:text-white active:scale-95 text-neutral-300 font-medium" title="切换全屏铺满/完整适屏">⛶ 铺满</button>
+        <span class="w-[1px] h-3.5 bg-white/20 mx-0.5"></span>
+        <button id="btn-save-image" class="px-3.5 py-1.5 rounded-full bg-white text-black font-semibold text-xs hover:bg-neutral-200 active:scale-95 transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>保存</span>
+        </button>
+      </div>
+      <p class="text-[10px] text-neutral-400 font-sans tracking-wide drop-shadow-sm select-none">轻触屏幕隐藏界面 · 双击/双指缩放 · 长按存储</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- Modal: Enterprise Authentication (First-time Setup & IP/Browser Lock) -->
+  <!-- ========================================================================= -->
+  <div id="auth-modal" class="fixed inset-0 z-[10000] hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none transition-all duration-300">
+    <div class="bg-white dark:bg-[#181816] border border-[#E5E5E3] dark:border-[#262624] rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col items-center text-center animate-slide-up">
+      <div id="auth-icon-badge" class="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-2xl mb-3 shadow-inner">
+        🔒
+      </div>
+      <h3 id="auth-title" class="text-base font-serif font-bold text-[#1C1917] dark:text-white mb-1.5">
+        安全访问验证
+      </h3>
+      <p id="auth-desc" class="text-xs text-[#78716C] mb-5 leading-relaxed max-w-[280px]">
+        检测到新浏览器或网络环境变更，请输入密码解锁工作台。
+      </p>
+
+      <form id="auth-form" class="w-full flex flex-col gap-3">
+        <div class="text-left w-full">
+          <label id="auth-pwd-label" class="block text-[11px] font-medium text-[#78716C] mb-1 ml-1">访问密码</label>
+          <input id="auth-pwd-input" type="password" autocomplete="current-password" placeholder="请输入密码..." class="w-full bg-[#F7F7F5] dark:bg-[#121211] border border-[#DCDCDA] dark:border-[#2E2E2B] focus:border-black dark:focus:border-white rounded-xl px-3.5 py-2.5 text-sm text-[#1C1917] dark:text-[#E6E6E5] outline-none transition font-sans">
+        </div>
+
+        <div id="auth-confirm-box" class="text-left w-full hidden">
+          <label class="block text-[11px] font-medium text-[#78716C] mb-1 ml-1">确认新密码</label>
+          <input id="auth-pwd-confirm" type="password" autocomplete="new-password" placeholder="请再次输入新密码..." class="w-full bg-[#F7F7F5] dark:bg-[#121211] border border-[#DCDCDA] dark:border-[#2E2E2B] focus:border-black dark:focus:border-white rounded-xl px-3.5 py-2.5 text-sm text-[#1C1917] dark:text-[#E6E6E5] outline-none transition font-sans">
+        </div>
+
+        <div id="auth-error-msg" class="text-xs text-rose-500 font-medium hidden text-left px-1"></div>
+
+        <button id="btn-auth-submit" type="submit" class="w-full mt-1 py-2.5 rounded-xl bg-[#1C1917] dark:bg-white text-white dark:text-[#1C1917] font-semibold text-xs active:scale-95 transition shadow-sm flex items-center justify-center gap-2">
+          <span id="auth-btn-text">解锁进入工作台</span>
+        </button>
+      </form>
+
+      <p id="auth-security-tip" class="text-[10px] text-[#A8A29E] dark:text-[#78716C] mt-4 leading-normal text-center">
+        💡 同一浏览器与 IP 将自动保持免密，更换网络或浏览器时需验证。
+      </p>
+    </div>
+  </div>
+
+  <script src="app.js?v=4.6"></script>
+</body>
+</html>

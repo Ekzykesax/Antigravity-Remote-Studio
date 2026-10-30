@@ -1,0 +1,626 @@
+/* =============================================================================
+   Strict Viewport & Horizontal Scroll Lock (Zero Side-Drift on Mobile)
+   ============================================================================= */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+#chat-stream {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: contain;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  touch-action: pan-y;
+}
+
+/* Safe Area Insets for Mobile / iPhone Notch / Dynamic Island */
+:root {
+  --ios-top-safe: 68px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --ios-top-safe: 0px;
+  }
+}
+
+.pt-safe {
+  padding-top: var(--ios-top-safe, 68px) !important;
+  padding-top: max(var(--ios-top-safe, 68px), env(safe-area-inset-top, 68px)) !important;
+}
+
+.pb-safe {
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeInSlide 0.25s ease-out forwards;
+}
+
+/* Hide scrollbar for clean aesthetic */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Minimalist Quick Action Chips (Black & White style) */
+.quick-chip {
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  border: 1px solid #DCDCDA;
+  background-color: #FFFFFF;
+  color: #44403C;
+}
+
+html.dark .quick-chip {
+  border-color: #2E2E2B;
+  background-color: #1C1C1A;
+  color: #A8A29E;
+}
+
+.quick-chip:hover {
+  border-color: #1C1917;
+  color: #1C1917;
+}
+
+html.dark .quick-chip:hover {
+  border-color: #E6E6E5;
+  color: #FFFFFF;
+}
+
+.quick-chip:active {
+  transform: scale(0.96);
+}
+
+/* Smooth Scrolling */
+#chat-stream::-webkit-scrollbar,
+#gallery-grid::-webkit-scrollbar,
+#history-list::-webkit-scrollbar {
+  width: 4px;
+}
+#chat-stream::-webkit-scrollbar-track,
+#gallery-grid::-webkit-scrollbar-track,
+#history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+#chat-stream::-webkit-scrollbar-thumb,
+#gallery-grid::-webkit-scrollbar-thumb,
+#history-list::-webkit-scrollbar-thumb {
+  background: #DCDCDA;
+  border-radius: 9999px;
+}
+html.dark #chat-stream::-webkit-scrollbar-thumb,
+html.dark #gallery-grid::-webkit-scrollbar-thumb,
+html.dark #history-list::-webkit-scrollbar-thumb {
+  background: #2E2E2B;
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-up {
+  animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* =============================================================================
+   Claude-Style Markdown Typography
+   ============================================================================= */
+.prose-claude {
+  color: #292524;
+  font-size: 0.925rem;
+  line-height: 1.68;
+}
+
+html.dark .prose-claude {
+  color: #E6E6E5;
+}
+
+.prose-claude p {
+  margin-bottom: 0.75rem;
+}
+.prose-claude p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-claude h1,
+.prose-claude h2,
+.prose-claude h3,
+.prose-claude h4 {
+  font-family: 'Newsreader', Georgia, serif;
+  color: #1C1917;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.015em;
+}
+
+html.dark .prose-claude h1,
+html.dark .prose-claude h2,
+html.dark .prose-claude h3,
+html.dark .prose-claude h4 {
+  color: #FFFFFF;
+}
+
+.prose-claude h1 { font-size: 1.35rem; }
+.prose-claude h2 { font-size: 1.18rem; }
+.prose-claude h3 { font-size: 1.05rem; }
+
+.prose-claude ul,
+.prose-claude ol {
+  padding-left: 1.35rem;
+  margin-bottom: 0.75rem;
+}
+.prose-claude ul { list-style-type: disc; }
+.prose-claude ol { list-style-type: decimal; }
+.prose-claude li {
+  margin-bottom: 0.3rem;
+}
+
+.prose-claude blockquote {
+  border-left: 2px solid #78716C;
+  padding-left: 0.85rem;
+  color: #78716C;
+  margin: 0.75rem 0;
+  font-family: 'Newsreader', Georgia, serif;
+  font-style: italic;
+}
+
+html.dark .prose-claude blockquote {
+  border-left-color: #57534E;
+  color: #A8A29E;
+}
+
+/* Inline Code */
+.prose-claude code:not(pre code) {
+  background-color: #EBEBEA;
+  color: #1C1917;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.82em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+}
+
+html.dark .prose-claude code:not(pre code) {
+  background-color: #262624;
+  color: #E6E6E5;
+}
+
+/* Code Blocks */
+.prose-claude pre {
+  background-color: #1C1C1A !important;
+  color: #F5F5F4 !important;
+  border: 1px solid #2E2E2B;
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  margin: 0.85rem 0;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  line-height: 1.5;
+}
+
+.prose-claude a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-claude table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.85rem 0;
+  font-size: 0.82rem;
+}
+
+.prose-claude th,
+.prose-claude td {
+  border: 1px solid #DCDCDA;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+}
+
+html.dark .prose-claude th,
+html.dark .prose-claude td {
+  border-color: #2E2E2B;
+}
+
+.prose-claude th {
+  background-color: #EBEBEA;
+  font-weight: 600;
+}
+
+html.dark .prose-claude th {
+  background-color: #1C1C1A;
+}
+
+/* Ensure images don't cause page overflow */
+.prose-claude img {
+  max-width: 100% !important;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+/* Attachment preview items */
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.85rem;
+  font-size: 0.75rem;
+  border: 1px solid #DCDCDA;
+  background-color: #FFFFFF;
+  color: #1C1917;
+  max-width: 220px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+html.dark .attachment-chip {
+  border-color: #2E2E2B;
+  background-color: #1C1C1A;
+  color: #E6E6E5;
+}
+
+/* Segmented Control for Reasoning Effort */
+.effort-seg-btn {
+  flex: 1;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.effort-seg-btn.active {
+  background-color: #1C1917;
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+html.dark .effort-seg-btn.active {
+  background-color: #FFFFFF;
+  color: #1C1917;
+}
+
+.effort-seg-btn:not(.active) {
+  color: #78716C;
+}
+
+.effort-seg-btn:not(.active):hover {
+  color: #1C1917;
+  background-color: rgba(0,0,0,0.04);
+}
+
+html.dark .effort-seg-btn:not(.active):hover {
+  color: #FFFFFF;
+  background-color: rgba(255,255,255,0.06);
+}
+
+/* Quota Group Tabs */
+.quota-group-tab {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.quota-group-tab.active {
+  background-color: #FFFFFF !important;
+  color: #1C1917 !important;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+html.dark .quota-group-tab.active {
+  background-color: #1C1C1A !important;
+  color: #FFFFFF !important;
+  border: 1px solid #2E2E2B;
+}
+
+/* =============================================================================
+   Gallery Daily Grid & Collapsible Accordion Cards
+   ============================================================================= */
+.gallery-day-section {
+  position: relative;
+  border-radius: 1.1rem;
+  border: 1px solid #E5E5E3;
+  background-color: #FFFFFF;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+html.dark .gallery-day-section {
+  border-color: #262624;
+  background-color: #181816;
+}
+
+.gallery-day-header {
+  padding: 0.75rem 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.gallery-day-header:active {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+html.dark .gallery-day-header:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gallery-day-header .arrow-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-day-section.expanded .gallery-day-header .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.gallery-day-content {
+  padding: 0.75rem;
+  border-top: 1px solid #F0F0EE;
+  background-color: #F7F7F5;
+}
+
+html.dark .gallery-day-content {
+  border-top-color: #262624;
+  background-color: #121211;
+}
+
+.gallery-day-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+@media (min-width: 640px) {
+  .gallery-day-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .gallery-day-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+.gallery-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background-color: #EBEBEA;
+  border: 1px solid #DCDCDA;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transform: translateZ(0);
+}
+
+html.dark .gallery-card {
+  background-color: #1C1C1A;
+  border-color: #2E2E2B;
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-card:active {
+  transform: scale(0.96);
+}
+
+.gallery-card:hover img {
+  transform: scale(1.04);
+}
+
+/* Gallery Filter Chips */
+.gallery-filter-chip {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  border: 1px solid #DCDCDA;
+  background-color: #FFFFFF;
+  color: #57534E;
+}
+
+html.dark .gallery-filter-chip {
+  border-color: #2E2E2B;
+  background-color: #1C1C1A;
+  color: #A8A29E;
+}
+
+.gallery-filter-chip.active {
+  border-color: #1C1917;
+  background-color: #1C1917;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+html.dark .gallery-filter-chip.active {
+  border-color: #FFFFFF;
+  background-color: #FFFFFF;
+  color: #121211;
+  font-weight: 600;
+}
+
+.gallery-filter-chip:active {
+  transform: scale(0.96);
+}
+
+/* =============================================================================
+   Workflow & Execution Progress Styling (Claude-Inspired Minimalist)
+   ============================================================================= */
+.workflow-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.workflow-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.workflow-item-row:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+html.dark .workflow-item-row:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+#active-thinking-indicator {
+  transition: all 0.25s ease;
+}
+
+#active-thinking-indicator .action-pulse {
+  animation: pulseLight 1.8s infinite ease-in-out;
+}
+
+@keyframes pulseLight {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.96); }
+}
+
+/* =============================================================================
+   Full-Screen Cinema Lightbox & Landscape Optimization (v4.2)
+   ============================================================================= */
+#lightbox-modal {
+  background-color: #000000 !important;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#lightbox-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  touch-action: none;
+}
+
+#lightbox-img {
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+#lightbox-img.fill-mode {
+  object-fit: cover !important;
+}
+
+#lightbox-img.no-transition {
+  transition: none !important;
+}
+
+/* Auto-Hide HUD for True Cinema Edge-to-Edge Viewing */
+#lightbox-modal.hud-hidden #lightbox-top-bar {
+  opacity: 0;
+  pointer-events: none !important;
+  transform: translateY(-16px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+#lightbox-modal.hud-hidden #lightbox-bottom-bar {
+  opacity: 0;
+  pointer-events: none !important;
+  transform: translateY(16px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+#lightbox-top-bar,
+#lightbox-bottom-bar {
+  transition: opacity 0.25s ease-in, transform 0.25s ease-in;
+}
+
+/* Landscape Mode Responsive Rules for iPhone & Mobile Devices */
+@media (orientation: landscape) {
+  #lightbox-top-bar {
+    padding-top: max(6px, env(safe-area-inset-top, 6px)) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 16px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 16px)) !important;
+    height: 48px;
+  }
+  #lightbox-bottom-bar {
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 16px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 16px)) !important;
+    padding-top: 0 !important;
+  }
+  #lightbox-controls-dock {
+    transform: scale(0.92);
+  }
+  #lightbox-bottom-bar p {
+    display: none !important;
+  }
+}
+

@@ -1,0 +1,8 @@
+{
+  "name": "Antigravity Remote Studio",
+  "short_name": "Antigravity",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#121211",
+  "theme_color": "#121211"
+}

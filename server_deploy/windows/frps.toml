@@ -1,0 +1,9 @@
+# Antigravity Remote Studio - FRP 服务端配置 (运行在 Windows 云服务器)
+bindPort = 7000
+auth.token = "antigravity"
+
+# Web 管理仪表盘 (可选，可通过浏览器访问 http://云服务器IP:7500 查看在线状态)
+webServer.addr = "0.0.0.0"
+webServer.port = 7500
+webServer.user = "admin"
+webServer.password = "admin8888"

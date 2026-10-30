@@ -1,0 +1,43 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8888,
+    "auth_token": "antigravity"
+  },
+  "network": {
+    "mode": "tunnel",
+    "tunnel_provider": "pinggy",
+    "pinggy_token": "",
+    "vps": {
+      "host": "",
+      "user": "root",
+      "method": "ssh",
+      "server_port": 7000,
+      "remote_port": 8888,
+      "token": "antigravity"
+    }
+  },
+  "notifications": {
+    "enabled": false,
+    "notify_on_turn_complete": true,
+    "notify_on_url_change": true,
+    "heartbeat_interval_minutes": 60,
+    "bark_key": "",
+    "pushplus_token": "",
+    "serverchan_sendkey": ""
+  },
+  "workspace": {
+    "root_dir": "",
+    "gallery_subdirs": [
+      "ComfyUI生图成果",
+      "outputs",
+      "output"
+    ]
+  },
+  "auth": {
+    "initialized": false,
+    "password_hash": "",
+    "salt": "",
+    "session_ttl_days": 30
+  }
+}

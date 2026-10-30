@@ -1,0 +1,8 @@
+bindPort = 7000
+auth.token = "your_secure_token"
+
+# 控制台仪表盘 (可选，可在浏览器访问 http://服务器IP:7500 查看连接状态)
+webServer.addr = "0.0.0.0"
+webServer.port = 7500
+webServer.user = "admin"
+webServer.password = "admin8888"
