@@ -60,21 +60,50 @@ Antigravity Remote Studio 是专为 **Google Antigravity 官方桌面客户端�
 
 ---
 
-## 快速使用
+## 安装与准备 (Installation)
 
-### 1. 启动服务 (Windows)
+### 1. 前置要求
+- Python 3.10 及以上版本；
+- 电脑已安装并正在运行 **Google Antigravity 官方桌面客户端**。
 
-在项目目录下运行：
-```bat
-start_remote.bat
+### 2. 克隆仓库与安装依赖
+```bash
+# 1. 克隆本项目到本地电脑
+git clone https://github.com/Ekzykesax/Antigravity-Remote-Studio.git
+cd Antigravity-Remote-Studio
+
+# 2. 安装 Python 核心依赖库
+pip install -r requirements.txt
 ```
-*(Linux / macOS 用户运行 `./start_remote.sh`)*
 
-启动后控制台会显示当前服务访问地址与二维码。
+### 3. 配置文件准备（可选）
+服务首次运行时若未发现 `config.json`，会自动从 `config.example.json` 生成一份默认配置。如需提前自定义端口或穿透方式：
+```bash
+# Windows (PowerShell)
+Copy-Item config.example.json config.json
 
-### 2. 访问方式
+# Linux / macOS
+cp config.example.json config.json
+```
 
-- **局域网直连**：手机与电脑连接同一 Wi-Fi，用手机浏览器打开控制台打印的局域网 IP（如 `http://192.168.x.x:8888`），无需输入密码即可直接使用。
+---
+
+## 快速使用 (Usage)
+
+### 1. 启动服务
+
+- **Windows 用户**：直接双击项目目录下的 `start_remote.bat`（或在终端执行 `py -3 -m gateway.app`）；
+- **Linux / macOS 用户**：
+  ```bash
+  chmod +x start_remote.sh
+  ./start_remote.sh
+  ```
+
+启动后控制台会自检环境、启动网关，并显示局域网/公网访问链接及终端二维码。
+
+### 2. 手机端连接与访问
+
+- **局域网直连（推荐）**：手机与电脑连接同一 Wi-Fi，用手机浏览器打开控制台打印的局域网 IP（如 `http://192.168.x.x:8888`），直接免密使用；
 - **外网远程访问**：
   - **云服务器中继**：在 `config.json` 中配置你的服务器公网 IP，脚本会自动通过 SSH 或 FRP 建立反向端口映射；
   - **临时隧道**：无服务器用户可将 `network.mode` 设为 `tunnel`（使用 Pinggy 等穿透服务）。  

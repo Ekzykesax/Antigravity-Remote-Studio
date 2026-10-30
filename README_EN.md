@@ -60,21 +60,50 @@ Antigravity Remote Studio is a lightweight mobile web companion designed specifi
 
 ---
 
-## Quick Start
+## Installation & Setup
 
-### 1. Launch Service (Windows)
+### 1. Prerequisites
+- Python 3.10 or higher;
+- **Google Antigravity Desktop Client** installed and running on your local computer.
 
-Run the launch script in the project directory:
-```bat
-start_remote.bat
+### 2. Clone Repository & Install Dependencies
+```bash
+# 1. Clone this repository
+git clone https://github.com/Ekzykesax/Antigravity-Remote-Studio.git
+cd Antigravity-Remote-Studio
+
+# 2. Install Python dependencies
+pip install -r requirements.txt
 ```
-*(For Linux / macOS users, run `./start_remote.sh`)*
 
-The terminal will self-check dependencies and print the active local/tunnel access URL along with a terminal QR code.
+### 3. Configuration Setup (Optional)
+If `config.json` is not present, the service will automatically generate a default configuration from `config.example.json` on initial launch. To pre-configure custom ports or relay settings:
+```bash
+# Windows (PowerShell)
+Copy-Item config.example.json config.json
 
-### 2. Accessing from Mobile
+# Linux / macOS
+cp config.example.json config.json
+```
 
-- **LAN Direct Access**: Connect your phone to the same Wi-Fi network and open the printed LAN address (e.g., `http://192.168.x.x:8888`). No password required.
+---
+
+## Quick Start (Usage)
+
+### 1. Launching the Gateway
+
+- **Windows Users**: Double-click `start_remote.bat` in the project root, or execute `py -3 -m gateway.app` in your terminal.
+- **Linux / macOS Users**:
+  ```bash
+  chmod +x start_remote.sh
+  ./start_remote.sh
+  ```
+
+The terminal will self-check dependencies, start the background server, and display the local/public access URLs alongside a scannable terminal QR code.
+
+### 2. Mobile Access & Connection
+
+- **LAN Direct Access (Recommended)**: Connect your phone to the same Wi-Fi network and open the printed LAN address (e.g., `http://192.168.x.x:8888`). Instant access without password.
 - **Remote Access (Outside Home)**:
   - **Cloud VPS Relay**: Configure your server IP in `config.json`. The gateway sets up reverse port forwarding via SSH or FRP automatically.
   - **Temporary Tunnel**: Set `network.mode` to `"tunnel"` in `config.json` to utilize Pinggy.  
