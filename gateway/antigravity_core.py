@@ -49,7 +49,7 @@ class AntigravityCore:
         """Open a read-only SQLite connection to the conversation summaries db."""
         if not self.db_path.exists():
             return None
-        # Open in URI mode read-only to avoid file locking conflicts with IDE
+        # Open in URI mode read-only to avoid file locking conflicts with Antigravity Desktop app
         db_uri = f"file:{self.db_path.as_posix()}?mode=ro"
         conn = sqlite3.connect(db_uri, uri=True, check_same_thread=False)
         conn.row_factory = sqlite3.Row
