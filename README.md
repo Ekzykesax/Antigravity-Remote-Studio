@@ -1,6 +1,14 @@
+<p align="right">
+  <b>中文说明</b> | <a href="README_EN.md">English</a>
+</p>
+
 # Antigravity Remote Studio
 
 Antigravity Remote Studio 是专为 **Google Antigravity 官方桌面客户端（Desktop）** 设计的轻量级移动端 Web 远程面板。通过本工具，你可以随时在手机或平板浏览器上查看电脑端 Antigravity 的实时思考状态、发送交互指令、监控模型额度并浏览生成的图片资产。
+
+<p align="center">
+  <img src="assets/showcase.png" alt="Antigravity Remote Studio 移动端界面预览" width="360" style="border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+</p>
 
 ---
 
